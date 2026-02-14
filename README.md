@@ -4,23 +4,24 @@ A constraint-aware instructional planning engine that generates structured lesso
 ## Project Overview
 Teachers face constant cognitive and emotional load when planning lessons. This project provides a constraint-aware decision support system that helps educators structure lessons efficiently and adaptively.
 
-- Key goals for the V1 portfolio version:
+**Key goals for the V1 portfolio version:**
+
 - Generate structured lesson plans based on high-level inputs
 - Incorporate classroom constraints like behavior, time, and language support
 - Suggest differentiation tiers and anticipate friction points
 - Build a foundation for future reflection and adaptation loops
 
-// V1 is focused on the planning engine. Reflection and iterative feedback layers are planned for future versions.
+<!-- V1 is focused on the planning engine. Reflection and iterative feedback layers are planned for future versions. -->
 
 ## Monorepo Structure
-
+```
 instructional-decision-engine/
 │
 ├── frontend/        # React + TypeScript UI for lesson plan display
 ├── backend/         # Node.js API + TypeScript rule engine
 ├── README.md        # Project documentation
 └── LICENSE          # MIT License
-
+```
 ## Tech Stack
 
 - Frontend: React + TypeScript
@@ -32,17 +33,17 @@ instructional-decision-engine/
 
 1. Clone the repo:
 
-git clone https://github.com/<your-username>/instructional-decision-engine.git
+- git clone https://github.com/<your-username>/instructional-decision-engine.git
 
 2. Navigate into the frontend folder and install dependencies:
 
-cd frontend
-npm install
+- cd frontend
+- npm install
 
 3. Navigate into the backend folder and install dependencies:
 
-cd ../backend
-npm install
+- cd ../backend
+- npm install
 
 4. Start frontend and backend separately (details to follow as V1 develops)
 
