@@ -1,8 +1,12 @@
 import express from 'express';
 import { LessonPlan, LessonPhase } from './types/lessonPlan';
+import cors from "cors";
+
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
 
 // Dummy lesson plan
 const sampleLessonPlan: LessonPlan = {
@@ -70,7 +74,7 @@ const sampleLessonPlan: LessonPlan = {
 app.get('/', (req, res) => {
     res.send('Instructional Decision Engine API is running 💙');
   });
-  
+
 app.get('/generateLessonPlan', (req, res) => {
   res.json(sampleLessonPlan);
 });
