@@ -16,3 +16,9 @@ export interface LessonPlan {
   classroomChallenges: string[];  // Teacher input (e.g., ["ELL", "Behavior"])
   lessonPlan: LessonPhase[];      // Array of lesson phases
 }
+
+export interface LessonPlanDisplayProps {
+  grade: string;
+  time: number;
+  challenges: string;
+}

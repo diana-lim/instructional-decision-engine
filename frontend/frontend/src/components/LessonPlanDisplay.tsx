@@ -1,30 +1,16 @@
 import { useEffect, useState } from 'react';
 import { fetchLessonPlan } from '../api/lessonPlan';
+import type { LessonPhase, LessonPlan, LessonPlanDisplayProps } from '../types/lesson';
 
-interface LessonPhase {
-  phaseId: string;
-  title: string;
-  durationMinutes: number;
-  description: string;
-}
 
-interface LessonPlan {
-  lessonId: string;
-  gradeLevel: string;
-  curriculumUnit: string;
-  timeMinutes: number;
-  classroomChallenges: string[];
-  lessonPlan: LessonPhase[];
-}
-
-export default function LessonPlanDisplay() {
+export default function LessonPlanDisplay({grade, time, challenges} : LessonPlanDisplayProps) {
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
 
   useEffect(() => {
-    fetchLessonPlan('?grade=5&time=25&challenges=ELL,Behavior')
+    fetchLessonPlan('?grade=${grade}&time=${time}&challenges=${challeneges}')
       .then(setLessonPlan)
       .catch(console.error);
-  }, []);
+  }, [grade, time, challenges]);
 
   if (!lessonPlan) return <div>Loading lesson...</div>;
 
