@@ -7,7 +7,7 @@ export default function LessonPlanDisplay({grade, time, challenges} : LessonPlan
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
 
   useEffect(() => {
-    fetchLessonPlan('?grade=${grade}&time=${time}&challenges=${challeneges}')
+    fetchLessonPlan(`?grade=${grade}&time=${time}&challenges=${challenges}`)
       .then(setLessonPlan)
       .catch(console.error);
   }, [grade, time, challenges]);
