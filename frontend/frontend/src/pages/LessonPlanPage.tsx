@@ -1,5 +1,7 @@
 import LessonPlanDisplay from "../components/LessonPlanDisplay";
 import { useState } from "react";
+import '../App.css';
+
 
 export default function LessonPlanPage() {
   const [grade, setGrade] = useState('5');
@@ -20,42 +22,45 @@ export default function LessonPlanPage() {
   return (
     <div className="LessonPlanPage">
       <h1>Instructional Decision Engine</h1>
-      <div className="teacher-inputs">
-        <label>
-          Grade:
-          <input 
-            type="text" 
-            value={grade} 
-            onChange={(e) => setGrade(e.target.value)} 
+      <div className="input-card">
+        <div className="input-group">
+          <label>Grade Level</label>
+          <input
+            type="text"
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
           />
-        </label>
+        </div>
 
-        <label>
-          Time (minutes):
-          <input 
-            type="number" 
-            value={time} 
+        <div className="input-group">
+          <label>Time (minutes)</label>
+          <input
+            type="number"
+            value={time}
             onChange={(e) => setTime(Number(e.target.value))}
           />
-        </label>
+        </div>
 
-        <label>
-          Challenges:
-          <input 
-            type="text" 
-            value={challenges} 
-            onChange={(e) => setChallenges(e.target.value)} 
+        <div className="input-group">
+          <label>Classroom Challenges</label>
+          <input
+            type="text"
+            value={challenges}
+            onChange={(e) => setChallenges(e.target.value)}
           />
-        </label>
-      </div>
+        </div>
 
-      <button onClick={handleGenerate}>Generate Lesson</button>
+        <button className="generate-btn" onClick={handleGenerate}>
+          Generate Lesson
+        </button>
+      </div>
 
       <LessonPlanDisplay
         grade={submittedParams.grade}
         time={submittedParams.time}
         challenges={submittedParams.challenges}
       />
+
     </div>
   );
 
