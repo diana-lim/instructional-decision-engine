@@ -84,7 +84,7 @@ export default function LessonPlanDisplay({grade, time, challenges} : LessonPlan
                 <strong>Differentiation:</strong>
                 <ul>
                 {Object.entries(phase.differentiation).map(([challenge, suggestion]) => (
-                    <li key={challenge}>
+                    <li key={challenge} className={challenge.replace(/\s+/g, '')}>
                     <strong>{challenge}:</strong> {suggestion}
                     </li>
                 ))}

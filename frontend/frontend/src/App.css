@@ -84,6 +84,9 @@ h1 {
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   margin-bottom: 16px;
+  text-align: left;
+  line-height: 1.8;
+
 }
 
 .lesson-phase-card h3 {
@@ -92,12 +95,33 @@ h1 {
 }
 
 .phase-section {
-  margin-top: 8px;
+  margin-top: 22px;
 }
 
 .phase-section ul {
   margin-top: 4px;
   padding-left: 20px;
+  list-style: none;
 }
+
+.phase-section ul li {
+  margin-bottom: 4px;
+  padding-left: 6px;
+  border-left: 4px solid transparent; /* default */
+}
+
+/* Color code by challenge type */
+.phase-section ul li.ELL {
+  border-left-color: #4f46e5; /* blue */
+}
+
+.phase-section ul li.Behavior {
+  border-left-color: #f59e0b; /* amber/orange */
+}
+
+.phase-section ul li.ReadingGaps {
+  border-left-color: #10b981; /* green */
+}
+
 
 
