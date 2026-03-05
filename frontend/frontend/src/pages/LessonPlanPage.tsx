@@ -5,16 +5,18 @@ import '../App.css';
 
 export default function LessonPlanPage() {
   const [grade, setGrade] = useState('5');
+  const [curriculumUnit, setCurriculumUnit] = useState("Fractions 101");
   const [time, setTime] = useState<number>(25);
   const [challenges, setChallenges] = useState('ELL, Behavior');
   const [submittedParams, setSubmittedParams] = useState({
     grade: '5',
+    curriculumUnit: 'Fractions 101',
     time: 25,
     challenges: 'ELL,Behavior'
   });
 
   const handleGenerate = () => {
-    setSubmittedParams({ grade, time, challenges });
+    setSubmittedParams({ grade, curriculumUnit, time, challenges });
   };
   
   
@@ -29,6 +31,15 @@ export default function LessonPlanPage() {
             type="text"
             value={grade}
             onChange={(e) => setGrade(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label>Curriculum Unit</label>
+          <input
+            type="text"
+            value={curriculumUnit}
+            onChange={(e) => setCurriculumUnit(e.target.value)}
           />
         </div>
 
@@ -57,6 +68,7 @@ export default function LessonPlanPage() {
 
       <LessonPlanDisplay
         grade={submittedParams.grade}
+        curriculumUnit={submittedParams.curriculumUnit}
         time={submittedParams.time}
         challenges={submittedParams.challenges}
       />

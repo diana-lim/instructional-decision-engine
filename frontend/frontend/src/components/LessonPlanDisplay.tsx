@@ -9,11 +9,11 @@ export default function LessonPlanDisplay({grade, time, challenges} : LessonPlan
   const [lessonPhases, setLessonPhases] = useState<LessonPhase[]>([]);
 
 
-//   useEffect(() => {
-//     fetchLessonPlan(`?grade=${grade}&time=${time}&challenges=${challenges}`)
-//       .then(setLessonPlan)
-//       .catch(console.error);
-//   }, [grade, time, challenges]);
+  useEffect(() => {
+    fetchLessonPlan(`?grade=${grade}&time=${time}&challenges=${challenges}`)
+      .then(setLessonPlan)
+      .catch(console.error);
+  }, [grade, time, challenges]);
 
   // Placeholder V1 fetch simulation
   useEffect(() => {
@@ -68,12 +68,15 @@ export default function LessonPlanDisplay({grade, time, challenges} : LessonPlan
   }, [grade, time, challenges]);
 
 
-//   if (!lessonPlan) return <div>Loading lesson...</div>;
-  if (!lessonPhases) return <div>Loading lesson...</div>;
+  if (!lessonPlan) return <div>Loading lesson...</div>;
+  if (!lessonPlan.lessonPlan.length) return <div>No lesson phases found</div>;
+
 
 
   return (
     <div>
+        <h2>Grade: {lessonPlan.gradeLevel} </h2>
+        <div>Unit: {lessonPlan.curriculumUnit} | Time: {lessonPlan.timeMinutes}</div>
       {lessonPhases.map((phase) => (
         <div key={phase.phaseId} className="lesson-phase-card">
             <h3>{phase.title} ({phase.durationMinutes} min)</h3>
