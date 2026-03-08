@@ -16,11 +16,12 @@ app.get('/', (req, res) => {
 
 app.get('/generateLessonPlan', (req, res) => {
     const grade = (req.query.grade as string) || '5';
+    const curriculumUnit = (req.query.curriculumUnit as string) || 'Sample Unit';
     const time = Number(req.query.time) || 45;
     const challenges =
         (req.query.challenges as string)?.split(',') || [];
 
-    const lesson = generateLessonPlan(grade, time, challenges);
+    const lesson = generateLessonPlan(grade, curriculumUnit, time, challenges);
 
     res.json(lesson);
 });

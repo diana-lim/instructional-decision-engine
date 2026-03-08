@@ -4,16 +4,17 @@ import type { LessonPhase, LessonPlan, LessonPlanDisplayProps } from '../types/l
 import '../App.css';
 
 
-export default function LessonPlanDisplay({grade, time, challenges} : LessonPlanDisplayProps) {
+export default function LessonPlanDisplay({ grade, curriculumUnit, time, challenges }: LessonPlanDisplayProps) {
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
   const [lessonPhases, setLessonPhases] = useState<LessonPhase[]>([]);
 
 
   useEffect(() => {
-    fetchLessonPlan(`?grade=${grade}&time=${time}&challenges=${challenges}`)
+    const params = new URLSearchParams({ grade, curriculumUnit, time: String(time), challenges });
+    fetchLessonPlan(`?${params.toString()}`)
       .then(setLessonPlan)
       .catch(console.error);
-  }, [grade, time, challenges]);
+  }, [grade, curriculumUnit, time, challenges]);
 
   // Placeholder V1 fetch simulation
 //   useEffect(() => {

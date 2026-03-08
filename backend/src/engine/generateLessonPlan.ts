@@ -43,13 +43,14 @@ export function buildPhases(
 
 export function generateLessonPlan(
   gradeLevel: string,
+  curriculumUnit: string,
   timeMinutes: number,
   classroomChallenges: string[]
 ): LessonPlan {
   return {
     lessonId: 'generated-001',
     gradeLevel,
-    curriculumUnit: 'Sample Unit',
+    curriculumUnit,
     timeMinutes,
     classroomChallenges,
     lessonPlan: buildPhases(timeMinutes, classroomChallenges, gradeLevel),
