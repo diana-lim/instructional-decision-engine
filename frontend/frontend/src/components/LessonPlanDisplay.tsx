@@ -7,13 +7,25 @@ import '../App.css';
 export default function LessonPlanDisplay({ grade, curriculumUnit, time, challenges }: LessonPlanDisplayProps) {
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
   const [lessonPhases, setLessonPhases] = useState<LessonPhase[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
+    // Keep the (commented) dummy pipeline available, but ensure it isn't shown accidentally.
+    setLessonPhases([]);
+    setIsLoading(true);
+    setError(null);
+
     const params = new URLSearchParams({ grade, curriculumUnit, time: String(time), challenges });
     fetchLessonPlan(`?${params.toString()}`)
       .then(setLessonPlan)
-      .catch(console.error);
+      .catch((err) => {
+        const message = err instanceof Error ? err.message : 'Failed to generate lesson.';
+        setError(message);
+        setLessonPlan(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [grade, curriculumUnit, time, challenges]);
 
   // Placeholder V1 fetch simulation
@@ -69,16 +81,20 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
 //   }, [grade, time, challenges]);
 
 
-  if (!lessonPlan) return <div>Loading lesson...</div>;
-  if (!lessonPlan.lessonPlan.length) return <div>No lesson phases found</div>;
+  if (error) return <div>Failed to load lesson: {error}</div>;
+
+  const phasesToRender = lessonPlan?.lessonPlan?.length ? lessonPlan.lessonPlan : lessonPhases;
+
+  if (isLoading && !lessonPlan) return <div>Loading lesson...</div>;
+  if (!phasesToRender.length) return <div>No lesson phases found</div>;
 
 
 
   return (
     <div>
-        <h2>Grade: {lessonPlan.gradeLevel} </h2>
-        <div>Unit: {lessonPlan.curriculumUnit} | Time: {lessonPlan.timeMinutes}</div>
-      {lessonPlan.lessonPlan.map((phase) => (
+        <h2>Grade: {lessonPlan?.gradeLevel ?? grade}</h2>
+        <div>Unit: {lessonPlan?.curriculumUnit ?? curriculumUnit} | Time: {lessonPlan?.timeMinutes ?? time}</div>
+      {phasesToRender.map((phase) => (
         <div key={phase.phaseId} className="lesson-phase-card">
             <h3>{phase.title} ({phase.durationMinutes} min)</h3>
             <p>{phase.description}</p>
