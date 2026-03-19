@@ -71,6 +71,20 @@ h1 {
   transform: translateY(1px);
 }
 
+.generate-btn:disabled {
+  background-color: #e5e7eb; /* light gray */
+  color: #373b44;
+  cursor: not-allowed;
+}
+
+.generate-btn:disabled:hover {
+  background-color: #e5e7eb;
+}
+
+.generate-btn:disabled:active {
+  transform: none;
+}
+
 .lesson-meta {
   background: #f3f4f6;
   padding: 16px;

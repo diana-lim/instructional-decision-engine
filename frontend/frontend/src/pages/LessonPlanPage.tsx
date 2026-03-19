@@ -1,23 +1,28 @@
 import LessonPlanDisplay from "../components/LessonPlanDisplay";
 import { useState } from "react";
 import '../App.css';
+import type { LessonPlanDisplayProps } from "../types/lesson";
 
 
 export default function LessonPlanPage() {
-  const [grade, setGrade] = useState('5');
-  const [curriculumUnit, setCurriculumUnit] = useState("Fractions 101");
-  const [time, setTime] = useState<number>(25);
-  const [challenges, setChallenges] = useState('ELL, Behavior');
-  const [submittedParams, setSubmittedParams] = useState({
-    grade: '5',
-    curriculumUnit: 'Fractions 101',
-    time: 25,
-    challenges: 'ELL,Behavior'
-  });
+  const [grade, setGrade] = useState('');
+  const [curriculumUnit, setCurriculumUnit] = useState('');
+  const [time, setTime] = useState<number | ''>('');
+  const [challenges, setChallenges] = useState('');
+  const [submittedParams, setSubmittedParams] = useState<LessonPlanDisplayProps | null>(null);
 
   const handleGenerate = () => {
-    setSubmittedParams({ grade, curriculumUnit, time, challenges });
+    if (!grade.trim() || !curriculumUnit.trim() || time === '' || time <= 0 || !challenges.trim()) return;
+    setSubmittedParams({
+      grade: grade.trim(),
+      curriculumUnit: curriculumUnit.trim(),
+      time,
+      challenges: challenges.trim(),
+    });
   };
+
+  const canGenerate =
+    !!grade.trim() && !!curriculumUnit.trim() && time !== '' && time > 0 && !!challenges.trim();
   
   
 
@@ -48,7 +53,7 @@ export default function LessonPlanPage() {
           <input
             type="number"
             value={time}
-            onChange={(e) => setTime(Number(e.target.value))}
+            onChange={(e) => setTime(e.target.value === '' ? '' : Number(e.target.value))}
           />
         </div>
 
@@ -61,17 +66,19 @@ export default function LessonPlanPage() {
           />
         </div>
 
-        <button className="generate-btn" onClick={handleGenerate}>
+        <button className="generate-btn" onClick={handleGenerate} disabled={!canGenerate}>
           Generate Lesson
         </button>
       </div>
 
-      <LessonPlanDisplay
-        grade={submittedParams.grade}
-        curriculumUnit={submittedParams.curriculumUnit}
-        time={submittedParams.time}
-        challenges={submittedParams.challenges}
-      />
+      {submittedParams && (
+        <LessonPlanDisplay
+          grade={submittedParams.grade}
+          curriculumUnit={submittedParams.curriculumUnit}
+          time={submittedParams.time}
+          challenges={submittedParams.challenges}
+        />
+      )}
 
     </div>
   );
