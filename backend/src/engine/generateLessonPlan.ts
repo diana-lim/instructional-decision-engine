@@ -8,6 +8,7 @@ import { LessonPlan, LessonPhase } from '../types/lessonPlan';
  * - Grade/unit awareness: templates use `gradeLevel` and `curriculumUnit` (Step 2 -> Step B).
  */
 type GradeBand = 'elementary' | 'middle' | 'high' | 'unknown';
+type PaceProfile = 'compressed' | 'standard' | 'extended';
 
 function getGradeBand(gradeLevel: string): GradeBand {
   const n = Number.parseInt(gradeLevel, 10);
@@ -19,6 +20,12 @@ function getGradeBand(gradeLevel: string): GradeBand {
 
 function fill(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? `{${key}}`);
+}
+
+function getPaceProfile(timeMinutes: number): PaceProfile {
+  if (timeMinutes <= 25) return 'compressed';
+  if (timeMinutes >= 50) return 'extended';
+  return 'standard';
 }
 
 const PHASE_SPECS: {
@@ -64,6 +71,31 @@ const PHASE_SPECS: {
 ];
 
 function getDifferentiationSuggestion(challenge: string, phaseTitle: string): string {
+  const normalized = challenge.trim().toLowerCase().replace(/[\s-]/g, '');
+  const byChallenge: Record<string, Record<string, string>> = {
+    ell: {
+      'Warm-Up': 'Use visuals and sentence stems so students can respond quickly.',
+      'Mini Lesson': 'Pre-teach key vocabulary and model one example with think-aloud language.',
+      'Guided Practice': 'Offer language frames and partner talk before written responses.',
+      'Independent Practice': 'Allow word banks or sentence starters for independent responses.',
+    },
+    behavior: {
+      'Warm-Up': 'Set a short timer and name one clear expectation before starting.',
+      'Mini Lesson': 'Chunk directions into 1-2 steps and check for attention before each step.',
+      'Guided Practice': 'Use proximity and quick positive feedback while students practice.',
+      'Independent Practice': 'Provide a visible checklist and quick check-ins for on-task behavior.',
+    },
+    readinggaps: {
+      'Warm-Up': 'Read prompt text aloud and highlight 2-3 key words.',
+      'Mini Lesson': 'Model annotation or decoding of one sample question.',
+      'Guided Practice': 'Provide chunked text and guided prompts for each chunk.',
+      'Independent Practice': 'Allow a reduced reading load with scaffolded directions.',
+    },
+  };
+
+  const phaseSuggestions = byChallenge[normalized];
+  if (phaseSuggestions?.[phaseTitle]) return phaseSuggestions[phaseTitle];
+
   return `Provide support for ${challenge.trim()} during ${phaseTitle} (e.g., scaffolds, pacing, or materials as needed).`;
 }
 
@@ -76,6 +108,7 @@ export function buildPhases(
   const phases: LessonPhase[] = [];
   let remainingMinutes = timeMinutes;
   const band = getGradeBand(gradeLevel);
+  const pace = getPaceProfile(timeMinutes);
   const unit = curriculumUnit?.trim() ? curriculumUnit.trim() : 'this lesson';
 
   // Small grade-band tweaks to keep formative checks from feeling totally generic.
@@ -101,24 +134,45 @@ export function buildPhases(
       if (trimmed) differentiation[trimmed] = getDifferentiationSuggestion(trimmed, spec.title);
     }
 
+    const paceDescriptionTail =
+      pace === 'compressed'
+        ? ' Keep transitions tight and prioritize the essential objective.'
+        : pace === 'extended'
+          ? ' Include one deeper example or extension before moving on.'
+          : '';
+
+    const paceFrictionTail =
+      pace === 'compressed'
+        ? ' Time pressure may reduce opportunities for individual support.'
+        : pace === 'extended'
+          ? ' Longer blocks can reduce urgency and drift off pace without clear checkpoints.'
+          : '';
+
+    const paceFormativeTail =
+      pace === 'compressed'
+        ? ' Keep this to 30-60 seconds.'
+        : pace === 'extended'
+          ? ' Follow with one brief extension prompt for students who are ready.'
+          : '';
+
     phases.push({
       phaseId: String(i + 1),
       title: spec.title,
       durationMinutes: Math.max(0, durationMinutes),
-      description: fill(spec.descriptionTemplate, { unit }),
+      description: `${fill(spec.descriptionTemplate, { unit })}${paceDescriptionTail}`,
       ...(Object.keys(differentiation).length > 0 && { differentiation }),
       frictionPoints: [
         fill(spec.frictionPointTemplate, {
           unit,
           phaseFocus: spec.title === 'Warm-Up' ? 'the start of the lesson' : spec.title.toLowerCase(),
-        }),
+        }) + paceFrictionTail,
       ],
       formativeChecks: [
         fill(spec.formativeCheckTemplate, {
           unit,
           uCheck,
           phaseFocus: spec.title.toLowerCase(),
-        }),
+        }) + paceFormativeTail,
       ],
     });
 

@@ -40,8 +40,8 @@ function run() {
     assert.ok(warmUp.differentiation && warmUp.differentiation['ELL'], 'Expected ELL differentiation entry');
     assert.ok(warmUp.differentiation && warmUp.differentiation['Behavior'], 'Expected Behavior differentiation entry');
     assert.ok(
-      warmUp.differentiation && warmUp.differentiation['ELL'].includes('Provide support for ELL during Warm-Up'),
-      'Expected ELL differentiation text to reference the Warm-Up phase'
+      warmUp.differentiation && warmUp.differentiation['ELL'].includes('sentence stems'),
+      'Expected challenge-specific ELL guidance for Warm-Up'
     );
   }
 
@@ -71,6 +71,29 @@ function run() {
     assert.ok(
       high.formativeChecks?.[0]?.includes('a 1-sentence justification or quick reasoning check'),
       'Expected high formative check example'
+    );
+  }
+
+  // 4) Time-pressure behavior (compressed vs extended)
+  {
+    const compressed = buildPhases(20, ['ELL'], '5', 'Fractions')[0];
+    assert.ok(
+      compressed.description.includes('Keep transitions tight'),
+      'Expected compressed-time description guidance'
+    );
+    assert.ok(
+      compressed.formativeChecks?.[0]?.includes('30-60 seconds'),
+      'Expected compressed-time formative check guidance'
+    );
+
+    const extended = buildPhases(60, ['ELL'], '5', 'Fractions')[0];
+    assert.ok(
+      extended.description.includes('deeper example or extension'),
+      'Expected extended-time description guidance'
+    );
+    assert.ok(
+      extended.formativeChecks?.[0]?.includes('brief extension prompt'),
+      'Expected extended-time formative check guidance'
     );
   }
 
