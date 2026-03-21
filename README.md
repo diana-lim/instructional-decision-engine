@@ -68,14 +68,14 @@ cd frontend/frontend
 npm install
 ```
 
-**Environment:** the UI needs a **`frontend/frontend/.env`** file so Vite can read `VITE_BACKEND_URL` (no trailing slash). Create it with:
+**Environment:** the UI needs a **`frontend/frontend/.env`** file so Vite can read `VITE_BACKEND_URL` (no trailing slash). After `npm install`, copy the committed template:
 
 ```bash
 # inside frontend/frontend
-echo 'VITE_BACKEND_URL=http://localhost:3000' > .env
+cp .env.example .env
 ```
 
-Change the URL if your API is hosted elsewhere.
+Edit `.env` if your API is not at `http://localhost:3000`. Alternatively you can create `.env` manually with the same variable names as `.env.example`.
 
 Start the dev server:
 
@@ -85,7 +85,7 @@ npm run dev
 
 Vite usually serves the app at **http://localhost:5173**. Open that URL, fill in the form, and click **Generate Lesson** (the backend must be running).
 
-> **Note:** `.env` is local configuration—don’t commit secrets. Optional: add a committed `.env.example` (same keys, placeholder values) so others can copy it to `.env`.
+> **Note:** `.env` is for your machine and may contain secrets—don’t commit it. **`.env.example`** is safe to commit (placeholder values only).
 
 ## Future Plans
 
