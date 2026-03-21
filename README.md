@@ -17,11 +17,13 @@ Teachers face constant cognitive and emotional load when planning lessons. This 
 ```
 instructional-decision-engine/
 │
-├── frontend/        # React + TypeScript UI for lesson plan display
+├── frontend/
+│   └── frontend/    # React + TypeScript UI (Vite app lives here)
 ├── backend/         # Node.js API + TypeScript rule engine
-├── README.md        # Project documentation
-└── LICENSE          # MIT License
+├── README.md
+└── LICENSE
 ```
+
 ## Tech Stack
 
 - Frontend: React + TypeScript
@@ -31,21 +33,59 @@ instructional-decision-engine/
 
 ## Getting Started
 
-1. Clone the repo:
+**Prerequisites:** Node.js and npm (LTS recommended).
 
-- git clone https://github.com/<your-username>/instructional-decision-engine.git
+### 1. Clone the repo
 
-2. Navigate into the frontend folder and install dependencies:
+```bash
+git clone https://github.com/<your-username>/instructional-decision-engine.git
+cd instructional-decision-engine
+```
 
-- cd frontend
-- npm install
+### 2. Backend (API + rule engine)
 
-3. Navigate into the backend folder and install dependencies:
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-- cd ../backend
-- npm install
+Runs at **http://localhost:3000** by default. Health check: `GET /`.
 
-4. Start frontend and backend separately (details to follow as V1 develops)
+**Run engine tests:**
+
+```bash
+cd backend
+npm test
+```
+
+### 3. Frontend (Vite + React)
+
+In a **second terminal**, from the repo root:
+
+```bash
+cd frontend/frontend
+npm install
+```
+
+**Environment:** the UI needs a **`frontend/frontend/.env`** file so Vite can read `VITE_BACKEND_URL` (no trailing slash). Create it with:
+
+```bash
+# inside frontend/frontend
+echo 'VITE_BACKEND_URL=http://localhost:3000' > .env
+```
+
+Change the URL if your API is hosted elsewhere.
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Vite usually serves the app at **http://localhost:5173**. Open that URL, fill in the form, and click **Generate Lesson** (the backend must be running).
+
+> **Note:** `.env` is local configuration—don’t commit secrets. Optional: add a committed `.env.example` (same keys, placeholder values) so others can copy it to `.env`.
 
 ## Future Plans
 
