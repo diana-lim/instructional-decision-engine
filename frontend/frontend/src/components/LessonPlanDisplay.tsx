@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fetchLessonPlan } from '../api/lessonPlan';
 import type { LessonPlan, LessonPlanDisplayProps } from '../types/lesson';
 import { buildMailtoLessonPlan, formatLessonPlanAsText } from '../utils/lessonPlanExport';
@@ -24,6 +24,8 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -45,6 +47,24 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
     const t = window.setTimeout(() => setCopyStatus('idle'), 2500);
     return () => window.clearTimeout(t);
   }, [copyStatus]);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (exportWrapRef.current && !exportWrapRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExportOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [exportOpen]);
 
   const handleCopy = async () => {
     if (!lessonPlan) return;
@@ -74,16 +94,60 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
 
   return (
     <div className="lesson-plan-display">
-      <div className="lesson-export-toolbar no-print">
-        <button type="button" className="export-btn export-btn-primary" onClick={handlePrintPdf}>
-          Download as PDF
-        </button>
-        <button type="button" className="export-btn" onClick={handleCopy}>
-          {copyStatus === 'copied' ? 'Copied!' : copyStatus === 'failed' ? 'Copy failed — try again' : 'Copy to clipboard'}
-        </button>
-        <a className="export-btn export-link" href={mailtoHref}>
-          Email to self
-        </a>
+      <div className="lesson-export-bar no-print">
+        <div className="lesson-export-wrap" ref={exportWrapRef}>
+          <button
+            type="button"
+            className="lesson-export-trigger"
+            aria-expanded={exportOpen}
+            aria-haspopup="menu"
+            onClick={() => setExportOpen((open) => !open)}
+          >
+            Export Lesson
+          </button>
+          {exportOpen && (
+            <div className="lesson-export-dropdown" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className="lesson-export-menu-item"
+                onClick={() => {
+                  setExportOpen(false);
+                  handlePrintPdf();
+                }}
+              >
+                Download as PDF
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="lesson-export-menu-item"
+                onClick={async () => {
+                  await handleCopy();
+                  setExportOpen(false);
+                }}
+              >
+                {copyStatus === 'copied'
+                  ? 'Copied!'
+                  : copyStatus === 'failed'
+                    ? 'Copy failed — try again'
+                    : 'Copy to clipboard'}
+              </button>
+              <a
+                role="menuitem"
+                className="lesson-export-menu-item lesson-export-menu-link"
+                href={mailtoHref}
+                onClick={() => setExportOpen(false)}
+              >
+                Email to self
+              </a>
+              <p className="lesson-export-dropdown-hint">
+                PDF: use print dialog → <strong>Save as PDF</strong>. Turn off <strong>Headers and footers</strong> to
+                hide the browser URL and page numbers.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="lesson-print-area">

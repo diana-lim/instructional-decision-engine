@@ -177,6 +177,7 @@ h1 {
 
 /* Lesson plan display + export */
 .lesson-plan-display {
+  position: relative;
   text-align: left;
 }
 
@@ -200,51 +201,86 @@ h1 {
   color: #9ca3af;
 }
 
-.lesson-export-toolbar {
+.lesson-export-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
 
-.export-btn {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 10px 16px;
+.lesson-export-wrap {
+  position: relative;
+}
+
+.lesson-export-trigger {
+  margin: 0;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  color: #6b7280;
   cursor: pointer;
-  background: #fff;
-  color: #1f2937;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.export-btn-primary {
-  background-color: #4f46e5;
-  color: #fff;
-  border-color: #4f46e5;
+.lesson-export-trigger:hover {
+  color: #4b5563;
+  text-decoration: underline;
 }
 
-.export-btn-primary:hover {
-  background-color: #4338ca;
-  border-color: #4338ca;
+.lesson-export-trigger:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
-.export-link:hover {
+.lesson-export-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 30;
+  margin-top: 6px;
+  min-width: 240px;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.lesson-export-menu-item {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lesson-export-menu-item:hover {
   background: #f3f4f6;
 }
 
-.export-hint {
-  flex-basis: 100%;
+.lesson-export-menu-link {
+  box-sizing: border-box;
+}
+
+.lesson-export-dropdown-hint {
   margin: 0;
-  font-size: 12px;
-  color: #6b7280;
-  text-align: center;
+  padding: 8px 16px 10px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #9ca3af;
 }
 
 /* Shown only in print / Save as PDF (see @media print) */
@@ -257,25 +293,41 @@ h1 {
     margin: 1.2cm;
   }
 
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   .no-print {
     display: none !important;
   }
 
-  body * {
-    visibility: hidden;
+  /* Hide page chrome without leaving layout gaps (visibility:hidden kept form/h1 space and broke PDF layout). */
+  .LessonPlanPage > h1,
+  .LessonPlanPage > .input-card {
+    display: none !important;
   }
 
-  .lesson-print-area,
-  .lesson-print-area *,
-  .lesson-print-footer,
-  .lesson-print-footer * {
-    visibility: visible;
+  #root {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    text-align: left !important;
+  }
+
+  .LessonPlanPage {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .lesson-plan-display {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .lesson-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: static !important;
     width: 100%;
     max-width: 100%;
     padding: 0;
