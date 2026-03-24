@@ -3,11 +3,11 @@ import type { LessonPlan } from '../types/lesson';
 /** Plain-text export for clipboard and email body. */
 export function formatLessonPlanAsText(plan: LessonPlan): string {
   const lines: string[] = [];
-  lines.push('LESSON PLAN');
+  lines.push(`${plan.curriculumUnit} Lesson`);
   lines.push('===========');
   lines.push(`Grade: ${plan.gradeLevel}`);
   lines.push(`Unit: ${plan.curriculumUnit}`);
-  lines.push(`Total time: ${plan.timeMinutes} minutes`);
+  lines.push(`Time: ${plan.timeMinutes} minutes`);
   lines.push(`Classroom challenges: ${plan.classroomChallenges.join(', ') || '(none)'}`);
   lines.push('');
 
@@ -56,6 +56,6 @@ export function buildMailtoLessonPlan(plan: LessonPlan, maxBodyChars = 1800): st
     full.length > maxBodyChars
       ? `${full.slice(0, maxBodyChars)}\n\n[... lesson truncated for email link length limits; use Copy to clipboard for the full plan ...]`
       : full;
-  const subject = `Lesson plan: ${plan.curriculumUnit}`;
+  const subject = `${plan.curriculumUnit} Lesson`;
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

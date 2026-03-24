@@ -84,16 +84,25 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
         <a className="export-btn export-link" href={mailtoHref}>
           Email to self
         </a>
-        <p className="export-hint">
-          PDF uses your browser&apos;s print dialog — choose <strong>Save as PDF</strong> as the destination.
-        </p>
       </div>
 
       <div className="lesson-print-area">
-        <h2>Grade: {lessonPlan.gradeLevel}</h2>
-        <div className="lesson-plan-meta-line">
-          Unit: {lessonPlan.curriculumUnit} | Time: {lessonPlan.timeMinutes} min
-        </div>
+        <header className="lesson-plan-header">
+          <h2 className="lesson-plan-main-title">{lessonPlan.curriculumUnit} Lesson</h2>
+          <div className="lesson-plan-subtitle">
+            <span>Grade: {lessonPlan.gradeLevel}</span>
+            <span className="lesson-plan-subtitle-sep" aria-hidden="true">
+              {' '}
+              ·{' '}
+            </span>
+            <span>Unit: {lessonPlan.curriculumUnit}</span>
+            <span className="lesson-plan-subtitle-sep" aria-hidden="true">
+              {' '}
+              ·{' '}
+            </span>
+            <span>Time: {lessonPlan.timeMinutes} min</span>
+          </div>
+        </header>
         {lessonPlan.lessonPlan.map((phase) => (
           <div key={phase.phaseId} className="lesson-phase-card">
             <h3>
@@ -138,6 +147,18 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
           </div>
         ))}
       </div>
+
+      <footer className="lesson-print-footer">
+        <p className="lesson-print-footer-inner">
+          Create, save, and edit lessons faster{' '}
+          <span className="lesson-print-footer-sep" aria-hidden="true">
+            ·{' '}
+          </span>
+          <a href="https://www.teacherslobby.com/" target="_blank" rel="noopener noreferrer">
+            https://www.teacherslobby.com/
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

@@ -180,9 +180,24 @@ h1 {
   text-align: left;
 }
 
-.lesson-plan-meta-line {
-  margin-bottom: 16px;
-  color: #374151;
+.lesson-plan-main-title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.25;
+}
+
+.lesson-plan-subtitle {
+  margin-bottom: 18px;
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.lesson-plan-subtitle-sep {
+  color: #9ca3af;
 }
 
 .lesson-export-toolbar {
@@ -232,6 +247,11 @@ h1 {
   text-align: center;
 }
 
+/* Shown only in print / Save as PDF (see @media print) */
+.lesson-print-footer {
+  display: none;
+}
+
 @media print {
   @page {
     margin: 1.2cm;
@@ -246,7 +266,9 @@ h1 {
   }
 
   .lesson-print-area,
-  .lesson-print-area * {
+  .lesson-print-area *,
+  .lesson-print-footer,
+  .lesson-print-footer * {
     visibility: visible;
   }
 
@@ -260,11 +282,92 @@ h1 {
     margin: 0;
   }
 
-  .lesson-phase-card {
+  /* Stack phases as document sections (no card chrome in PDF / print) */
+  .lesson-print-area .lesson-phase-card {
     box-shadow: none !important;
-    border: 1px solid #e5e7eb;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* Title block: equal space above & below subtitle centers it between title and first phase h3 */
+  .lesson-print-area .lesson-plan-main-title {
+    margin: 0 0 1rem 0 !important;
+    font-size: 18pt !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+  }
+
+  .lesson-print-area .lesson-plan-subtitle {
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+    font-size: 10pt !important;
+    color: #4b5563 !important;
+    font-weight: 500 !important;
+  }
+
+  .lesson-print-area .lesson-plan-subtitle-sep {
+    color: #9ca3af !important;
+  }
+
+  .lesson-print-area .lesson-phase-card + .lesson-phase-card {
+    margin-top: 32px !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+  }
+
+  .lesson-print-area .lesson-phase-card h3 {
+    margin: 0 0 0.95rem 0 !important;
+    padding-bottom: 0.45rem !important;
+    border-bottom: 1px solid #d1d5db !important;
+    font-size: 16pt;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: 0.01em;
+  }
+
+  .lesson-print-area .lesson-phase-card p {
+    margin: 0 0 0.55rem 0 !important;
+  }
+
+  .lesson-print-area .phase-section {
+    margin-top: 0.65rem !important;
+  }
+
+  .lesson-print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    margin: 0;
+    padding: 2px 10px 3px;
+    text-align: center;
+    font-size: 7pt;
+    line-height: 1.2;
+    color: #9ca3af;
+    background: #fff;
+    border-top: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .lesson-print-footer-inner {
+    margin: 0;
+  }
+
+  .lesson-print-footer-sep {
+    color: #c4c4c4;
+  }
+
+  .lesson-print-footer a {
+    color: #9ca3af;
+    text-decoration: none;
   }
 }
 
