@@ -3,11 +3,13 @@ import type { LessonPlan } from '../types/lesson';
 const BASE_URL = import.meta.env.VITE_BACKEND_URL as string | undefined;
 
 export async function fetchLessonPlan(query: string): Promise<LessonPlan> {
-  if (!BASE_URL) {
-    throw new Error('VITE_BACKEND_URL is not set (frontend .env).');
-  }
+  // Local/dev supports a separately-running Express backend.
+  // Vercel can host the API in the same deployment under `/api/*`.
+  const url = BASE_URL
+    ? `${BASE_URL}/generateLessonPlan${query}`
+    : `/api/generateLessonPlan${query}`;
 
-  const res = await fetch(`${BASE_URL}/generateLessonPlan${query}`);
+  const res = await fetch(url);
   if (!res.ok) {
     const bodyText = await res.text().catch(() => '');
     const detail = bodyText ? `: ${bodyText}` : '';
