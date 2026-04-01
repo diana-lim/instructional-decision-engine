@@ -5,8 +5,9 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL as string | undefined;
 export async function fetchLessonPlan(query: string): Promise<LessonPlan> {
   // Local/dev supports a separately-running Express backend.
   // Vercel can host the API in the same deployment under `/api/*`.
-  const url = BASE_URL
-    ? `${BASE_URL}/generateLessonPlan${query}`
+  const normalizedBaseUrl = BASE_URL?.trim().replace(/\/+$/, '');
+  const url = normalizedBaseUrl
+    ? `${normalizedBaseUrl}/generateLessonPlan${query}`
     : `/api/generateLessonPlan${query}`;
 
   const res = await fetch(url);
