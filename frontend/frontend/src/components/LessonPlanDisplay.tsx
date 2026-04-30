@@ -19,9 +19,20 @@ function copyTextFallback(text: string): boolean {
   }
 }
 
+const LOADING_STAGE_MS = 7000;
+/** Avoid a flash of loading text when the API responds quickly. */
+const SHOW_LOADING_UI_AFTER_MS = 250;
+const LOADING_MESSAGES = [
+  'Loading lesson...',
+  'Please stand by.',
+  'This may take up to 50 seconds.',
+] as const;
+
 export default function LessonPlanDisplay({ grade, curriculumUnit, time, challenges }: LessonPlanDisplayProps) {
   const [lessonPlan, setLessonPlan] = useState<LessonPlan | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoadingUi, setShowLoadingUi] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [exportOpen, setExportOpen] = useState(false);
@@ -30,6 +41,11 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
   useEffect(() => {
     setIsLoading(true);
     setError(null);
+    setShowLoadingUi(false);
+
+    const showUiTimer = window.setTimeout(() => {
+      setShowLoadingUi(true);
+    }, SHOW_LOADING_UI_AFTER_MS);
 
     const params = new URLSearchParams({ grade, curriculumUnit, time: String(time), challenges });
     fetchLessonPlan(`?${params.toString()}`)
@@ -39,8 +55,32 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
         setError(message);
         setLessonPlan(null);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        window.clearTimeout(showUiTimer);
+        setShowLoadingUi(false);
+        setIsLoading(false);
+      });
+
+    return () => {
+      window.clearTimeout(showUiTimer);
+    };
   }, [grade, curriculumUnit, time, challenges]);
+
+  useEffect(() => {
+    if (!showLoadingUi || !isLoading || lessonPlan) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+
+    setLoadingMessageIndex(0);
+    const t1 = window.setTimeout(() => setLoadingMessageIndex(1), LOADING_STAGE_MS);
+    const t2 = window.setTimeout(() => setLoadingMessageIndex(2), LOADING_STAGE_MS * 2);
+
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [showLoadingUi, isLoading, lessonPlan, grade, curriculumUnit, time, challenges]);
 
   useEffect(() => {
     if (copyStatus === 'idle') return;
@@ -87,7 +127,10 @@ export default function LessonPlanDisplay({ grade, curriculumUnit, time, challen
 
   if (error) return <div>Failed to load lesson: {error}</div>;
 
-  if (isLoading && !lessonPlan) return <div>Loading lesson...</div>;
+  if (isLoading && !lessonPlan) {
+    if (!showLoadingUi) return null;
+    return <div className="lesson-loading-message">{LOADING_MESSAGES[loadingMessageIndex]}</div>;
+  }
   if (!lessonPlan?.lessonPlan?.length) return <div>No lesson phases found</div>;
 
   const mailtoHref = buildMailtoLessonPlan(lessonPlan);
