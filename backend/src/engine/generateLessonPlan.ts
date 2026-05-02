@@ -1,14 +1,22 @@
 import { LessonPlan, LessonPhase } from '../types/lessonPlan';
+import {
+  type CanonicalChallenge,
+  type GradeBand,
+  type PhaseTitle,
+  bandMicroCheckExamples,
+  frictionChallengeClause,
+  getDifferentiationLine,
+  pickVariant,
+  resolveCanonicalChallenge,
+} from './ruleCatalog';
 
 /**
- * Phase structure rules (Step 2 spec):
+ * Phase structure rules:
  * - Always 4 phases: Warm-Up, Mini Lesson, Guided Practice, Independent Practice.
  * - Time split: Warm-Up 15%, Mini Lesson 25%, Guided Practice 35%, Independent Practice 25%.
- * - Differentiation: placeholder per challenge; one friction point and one formative check per phase.
- * - Grade/unit awareness: templates use `gradeLevel` and `curriculumUnit` (Step 2 -> Step B).
+ * - Differentiation: per classroom challenge; friction + formative guidance per phase.
+ * - Grade/unit awareness via templates and band-specific check examples.
  */
-type GradeBand = 'elementary' | 'middle' | 'high' | 'unknown';
-type PaceProfile = 'compressed' | 'standard' | 'extended';
 
 function getGradeBand(gradeLevel: string): GradeBand {
   const n = Number.parseInt(gradeLevel, 10);
@@ -22,14 +30,14 @@ function fill(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) => vars[key] ?? `{${key}}`);
 }
 
-function getPaceProfile(timeMinutes: number): PaceProfile {
+function getPaceProfile(timeMinutes: number): 'compressed' | 'standard' | 'extended' {
   if (timeMinutes <= 25) return 'compressed';
   if (timeMinutes >= 50) return 'extended';
   return 'standard';
 }
 
 const PHASE_SPECS: {
-  title: string;
+  title: PhaseTitle;
   percent: number;
   descriptionTemplate: string;
   frictionPointTemplate: string;
@@ -49,8 +57,7 @@ const PHASE_SPECS: {
     descriptionTemplate: 'Model the core concept or skill in {unit}.',
     frictionPointTemplate:
       'Pacing may be too fast for some; others may disengage if too slow while {phaseFocus}.',
-    formativeCheckTemplate:
-      'Pause to ask a check-for-understanding question (e.g., {uCheck}).',
+    formativeCheckTemplate: 'Pause to ask a check-for-understanding question (e.g., {uCheck}).',
   },
   {
     title: 'Guided Practice',
@@ -70,33 +77,31 @@ const PHASE_SPECS: {
   },
 ];
 
-function getDifferentiationSuggestion(challenge: string, phaseTitle: string): string {
-  const normalized = challenge.trim().toLowerCase().replace(/[\s-]/g, '');
-  const byChallenge: Record<string, Record<string, string>> = {
-    ell: {
-      'Warm-Up': 'Use visuals and sentence stems so students can respond quickly.',
-      'Mini Lesson': 'Pre-teach key vocabulary and model one example with think-aloud language.',
-      'Guided Practice': 'Offer language frames and partner talk before written responses.',
-      'Independent Practice': 'Allow word banks or sentence starters for independent responses.',
-    },
-    behavior: {
-      'Warm-Up': 'Set a short timer and name one clear expectation before starting.',
-      'Mini Lesson': 'Chunk directions into 1-2 steps and check for attention before each step.',
-      'Guided Practice': 'Use proximity and quick positive feedback while students practice.',
-      'Independent Practice': 'Provide a visible checklist and quick check-ins for on-task behavior.',
-    },
-    readinggaps: {
-      'Warm-Up': 'Read prompt text aloud and highlight 2-3 key words.',
-      'Mini Lesson': 'Model annotation or decoding of one sample question.',
-      'Guided Practice': 'Provide chunked text and guided prompts for each chunk.',
-      'Independent Practice': 'Allow a reduced reading load with scaffolded directions.',
-    },
-  };
+const CANONICAL_SET = new Set([
+  'ell',
+  'behavior',
+  'readinggaps',
+  'attendance',
+  'limitedmaterials',
+  'motivation',
+  'sped',
+]);
 
-  const phaseSuggestions = byChallenge[normalized];
-  if (phaseSuggestions?.[phaseTitle]) return phaseSuggestions[phaseTitle];
+function canonicalChallengeList(classroomChallenges: string[]): CanonicalChallenge[] {
+  const out: CanonicalChallenge[] = [];
+  for (const c of classroomChallenges) {
+    const r = resolveCanonicalChallenge(c.trim());
+    if (CANONICAL_SET.has(r)) {
+      out.push(r as CanonicalChallenge);
+    }
+  }
+  return out;
+}
 
-  return `Provide support for ${challenge.trim()} during ${phaseTitle} (e.g., scaffolds, pacing, or materials as needed).`;
+/** Differentiation text keyed by teacher-visible challenge label. */
+function differentiationForChallenge(trimmedLabel: string, phaseTitle: PhaseTitle): string {
+  const resolved = resolveCanonicalChallenge(trimmedLabel);
+  return getDifferentiationLine(resolved, phaseTitle);
 }
 
 export function buildPhases(
@@ -110,29 +115,25 @@ export function buildPhases(
   const band = getGradeBand(gradeLevel);
   const pace = getPaceProfile(timeMinutes);
   const unit = curriculumUnit?.trim() ? curriculumUnit.trim() : 'this lesson';
+  const canonicalList = canonicalChallengeList(classroomChallenges);
 
-  // Small grade-band tweaks to keep formative checks from feeling totally generic.
-  const uCheck =
-    band === 'elementary'
-      ? 'thumbs up/down or turn-and-talk'
-      : band === 'middle'
-        ? 'a quick written response + share'
-        : band === 'high'
-          ? 'a 1-sentence justification or quick reasoning check'
-          : 'a quick check-for-understanding question';
+  const uCheckOptions = bandMicroCheckExamples(band);
 
   for (let i = 0; i < PHASE_SPECS.length; i++) {
-    const spec = PHASE_SPECS[i];
+    const spec = PHASE_SPECS[i]!;
     const isLast = i === PHASE_SPECS.length - 1;
-    const durationMinutes = isLast
-      ? remainingMinutes
-      : Math.round(timeMinutes * (spec.percent / 100));
+    const durationMinutes = isLast ? remainingMinutes : Math.round(timeMinutes * (spec.percent / 100));
 
     const differentiation: Record<string, string> = {};
     for (const challenge of classroomChallenges) {
       const trimmed = challenge.trim();
-      if (trimmed) differentiation[trimmed] = getDifferentiationSuggestion(trimmed, spec.title);
+      if (trimmed) differentiation[trimmed] = differentiationForChallenge(trimmed, spec.title);
     }
+
+    const uCheck = pickVariant(
+      [gradeLevel, unit, String(i), 'ucheck'],
+      uCheckOptions
+    );
 
     const paceDescriptionTail =
       pace === 'compressed'
@@ -155,18 +156,26 @@ export function buildPhases(
           ? ' Follow with one brief extension prompt for students who are ready.'
           : '';
 
+    let frictionBase = fill(spec.frictionPointTemplate, {
+      unit,
+      phaseFocus: spec.title === 'Warm-Up' ? 'the start of the lesson' : spec.title.toLowerCase(),
+    });
+    frictionBase += paceFrictionTail;
+
+    const frictionExtra =
+      canonicalList.length > 0
+        ? frictionChallengeClause(canonicalList, spec.title, [gradeLevel, unit, String(i)])
+        : '';
+
+    const frictionPoints = [frictionBase + frictionExtra];
+
     phases.push({
       phaseId: String(i + 1),
       title: spec.title,
       durationMinutes: Math.max(0, durationMinutes),
       description: `${fill(spec.descriptionTemplate, { unit })}${paceDescriptionTail}`,
       ...(Object.keys(differentiation).length > 0 && { differentiation }),
-      frictionPoints: [
-        fill(spec.frictionPointTemplate, {
-          unit,
-          phaseFocus: spec.title === 'Warm-Up' ? 'the start of the lesson' : spec.title.toLowerCase(),
-        }) + paceFrictionTail,
-      ],
+      frictionPoints,
       formativeChecks: [
         fill(spec.formativeCheckTemplate, {
           unit,

@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { buildPhases } from './generateLessonPlan';
+import { bandMicroCheckExamples } from './ruleCatalog';
 
 function sum(nums: number[]): number {
   return nums.reduce((a, b) => a + b, 0);
@@ -53,25 +54,28 @@ function run() {
     }
   }
 
-  // 3) Grade-band awareness for formative checks
+  // 3) Grade-band awareness for formative checks (rotating variants; must stay band-appropriate)
   {
-    const elementary = buildPhases(20, [], '5', 'Unit X')[1]; // Mini Lesson (index 1)
-    assert.ok(
-      elementary.formativeChecks?.[0]?.includes('thumbs up/down or turn-and-talk'),
-      'Expected elementary formative check example'
-    );
+    const assertBandFormative = (bandLabel: string, grade: string, band: 'elementary' | 'middle' | 'high') => {
+      const mini = buildPhases(20, [], grade, 'Unit X')[1];
+      const text = mini.formativeChecks?.[0] ?? '';
+      const options = bandMicroCheckExamples(band);
+      assert.ok(
+        options.some((opt) => text.includes(opt)),
+        `Expected ${bandLabel} Mini Lesson formative to embed one band example (${band})`
+      );
+    };
 
-    const middle = buildPhases(20, [], '7', 'Unit X')[1];
-    assert.ok(
-      middle.formativeChecks?.[0]?.includes('a quick written response + share'),
-      'Expected middle formative check example'
-    );
+    assertBandFormative('elementary', '5', 'elementary');
+    assertBandFormative('middle', '7', 'middle');
+    assertBandFormative('high', '10', 'high');
+  }
 
-    const high = buildPhases(20, [], '10', 'Unit X')[1];
-    assert.ok(
-      high.formativeChecks?.[0]?.includes('a 1-sentence justification or quick reasoning check'),
-      'Expected high formative check example'
-    );
+  // 5) Canonical inference + expanded challenge rules (attendance)
+  {
+    const phases = buildPhases(30, ['Attendance'], '5', 'Unit X');
+    const warmUp = phases[0];
+    assert.ok(warmUp.differentiation?.['Attendance']?.toLowerCase().includes('re-entry'), 'Expected attendance-specific Warm-Up guidance');
   }
 
   // 4) Time-pressure behavior (compressed vs extended)
